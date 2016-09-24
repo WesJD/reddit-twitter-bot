@@ -1,0 +1,12 @@
+{
+  "twitter": {
+    "consumer_key": "myTwitterConsumerKey",
+    "consumer_secret": "myTwitterConsumerSecret",
+    "access_token": "myTwitterAccessToken",
+    "access_token_secret": "myTwitterAccessSecret"
+  },
+  "reddit": {
+    "subreddit": "unixporn",
+    "lastId": "4sbqeh"
+  }
+}
