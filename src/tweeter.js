@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(handle, request) {
     const Twitter = require("twit-promise")({
         consumer_key: handle.twitter.consumer_key,

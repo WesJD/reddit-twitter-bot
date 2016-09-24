@@ -28,7 +28,7 @@ function check() {
                         break;
                     }
                 }
-            } else return Promise.reject(new Error("Response code " + data.responseCode));
+            } else return Promise.reject(new Error("Response code " + response.responseCode));
         })
         .then(function(responses) {
             if(responses != null) {
