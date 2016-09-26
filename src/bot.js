@@ -18,7 +18,7 @@ function check() {
     console.log("Checking...");
     request(requestOptions)
         .then(function(response) {
-            if(response.responseCode == 200) {
+            if(response.statusCode == 200) {
                 const latest = response.data.children;
                 for(const post of latest) {
                     const postData = post.data;
@@ -28,7 +28,7 @@ function check() {
                         break;
                     }
                 }
-            } else return Promise.reject(new Error("Response code " + response.responseCode));
+            } else return Promise.reject(new Error("Response code " + response.statusCode));
         })
         .then(function(responses) {
             if(responses != null) {
