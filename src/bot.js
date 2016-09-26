@@ -4,7 +4,8 @@ const args = process.argv.slice(2);
 const handle = require("../handles/" + args[0] + ".json");
 const requestOptions = {
     url: "https://www.reddit.com/r/" + handle.reddit.subreddit + "/new.json?sort=new",
-    json: true
+    json: true,
+    resolveWithFullResponse: true
 };
 
 const fs = require("fs");
