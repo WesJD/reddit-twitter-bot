@@ -20,7 +20,7 @@ function check() {
     request(requestOptions)
         .then(function(response) {
             if(response.statusCode == 200) {
-                const latest = response.data.children;
+                const latest = response.body.data.children;
                 for(const post of latest) {
                     const postData = post.data;
                     const state = Stater.getImageState(postData.url);

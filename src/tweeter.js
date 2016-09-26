@@ -11,11 +11,10 @@ module.exports = function(handle, request) {
 
     function encodeImageFromUrl(url) {
         return new Promise(function(resolve, reject) {
-            request({ url: url, encoding: null })
+            request({ url: url, encoding: null, resolveWithFullResponse: true })
                 .then(function(response) {
-                    if(response.statusCode == 200) {
-                        resolve(response.toString("base64"));
-                    } else reject(new Error("Response code " + response.statusCode));
+                    if(response.statusCode == 200) resolve(response.body.data.toString("base64"));
+                    else reject(new Error("Response code " + response.statusCode));
                 })
                 .catch(reject);
         });
