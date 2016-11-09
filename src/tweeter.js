@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(handle, request) {
+module.exports = (handle, request) => {
     const Twitter = require("twit-promise")({
         consumer_key: handle.twitter.consumer_key,
         consumer_secret: handle.twitter.consumer_secret,
@@ -10,10 +10,10 @@ module.exports = function(handle, request) {
     });
 
     function encodeImageFromUrl(url) {
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             request({ url: url, encoding: null, resolveWithFullResponse: true })
-                .then(function(response) {
-                    if(response.statusCode == 200) resolve(new Buffer(response.body.data).toString("base64"));
+                .then(response => {
+                    if(response.statusCode == 200) resolve(response.body.data.toString("base64"));
                     else reject(new Error("Response code " + response.statusCode));
                 })
                 .catch(reject);
@@ -22,32 +22,24 @@ module.exports = function(handle, request) {
 
     function uploadMedia(imageUrl) {
         console.log("Uploading media...");
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             encodeImageFromUrl(imageUrl)
-                .then(function(response) {
-                    return Promise.all([ response, Twitter.post("media/upload", { media_data: response }) ]);
-                })
-                .then(function(responses) {
-                    return Promise.all([ responses, Twitter.post("media/metadata/create", { media_id: responses[1].data.media_id, alt_text: { text: "An image" } }) ]);
-                })
-                .then(function(responses) {
-                    resolve(responses[1].data.media_id_string);
-                })
+                .then(response => Promise.all([ response, Twitter.post("media/upload", { media_data: response }) ]))
+                .then(responses => Promise.all([ responses, Twitter.post("media/metadata/create", { media_id: responses[1].data.media_id, alt_text: { text: "An image" } }) ]))
+                .then(responses => { resolve(responses[1].data.media_id_string); })
                 .catch(reject);
         });
     }
 
     return {
 
-        tweet: function(text, imageUrl, state) {
+        tweet: (text, imageUrl, state) => {
             console.log("Tweeting...");
-            return new Promise(function(resolve, reject) {
+            return new Promise((resolve, reject) => {
                 if (state.isRawImage()) {
                     console.log("Raw image");
                     uploadMedia(imageUrl)
-                        .then(function(mediaId) {
-                            return Promise.all([ mediaId, Twitter.post("statuses/update", { status: text, media_ids: [mediaId] }) ]);
-                        })
+                        .then(mediaId => Promise.all([ mediaId, Twitter.post("statuses/update", { status: text, media_ids: [mediaId] }) ]))
                         .then(resolve)
                         .catch(reject);
                 } else if (state.isValidSite()) {

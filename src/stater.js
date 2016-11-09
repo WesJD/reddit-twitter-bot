@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(validSites) {
+module.exports = (validSites) => {
 
     function isValidSite(url) {
         for(const site of validSites) if(url.indexOf(site) > -1) return true;
@@ -9,17 +9,17 @@ module.exports = function(validSites) {
 
     return {
 
-        getImageState: function(url) {
+        getImageState: (url) => {
             const rawImage = (url.match(/\.(jpeg|jpg|gif|png)$/) != null);
             const validSite = (rawImage ? true : isValidSite(url));
             return {
-                isRawImage: function() {
+                isRawImage: () => {
                     return rawImage;
                 },
-                isValidSite: function() {
+                isValidSite: () => {
                     return validSite;
                 },
-                isAcceptable: function() {
+                isAcceptable: () => {
                     return validSite || rawImage;
                 }
             }

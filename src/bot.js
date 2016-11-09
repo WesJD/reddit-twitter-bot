@@ -18,20 +18,20 @@ let lastId = handle.reddit.lastId;
 function check() {
     console.log("Checking...");
     request(requestOptions)
-        .then(function(response) {
-            if(response.statusCode == 200) {
-                const latest = response.body.data.children;
-                for(const post of latest) {
-                    const postData = post.data;
-                    const state = Stater.getImageState(postData.url);
-                    if(state.isAcceptable()) {
-                        if (lastId != postData.id) return Promise.all([ postData, Tweeter.tweet(postData.title, postData.url, state) ]);
-                        break;
-                    }
-                }
-            } else return Promise.reject(new Error("Response code " + response.statusCode));
+        .then(response => {
+          if(response.statusCode == 200) {
+              const latest = response.body.data.children;
+              for(const post of latest) {
+                  const postData = post.data;
+                  const state = Stater.getImageState(postData.url);
+                  if(state.isAcceptable()) {
+                      if (lastId != postData.id) return Promise.all([ postData, Tweeter.tweet(postData.title, postData.url, state) ]);
+                      break;
+                  }
+              }
+          } else return Promise.reject(new Error("Response code " + response.statusCode));
         })
-        .then(function(responses) {
+        .then(responses => {
             if(responses != null) {
                 lastId = responses[0].id;
                 handle.reddit.lastId = lastId;
@@ -39,9 +39,7 @@ function check() {
             }
             console.log("Done.");
         })
-        .catch(function(err) {
-            console.error("Unable to process: ", err);
-        });
+        .catch(err => { console.error("Unable to process: ", err) });
 }
 
 console.log("Starting...");
