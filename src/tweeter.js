@@ -24,11 +24,9 @@ module.exports = (handle, request) => {
         console.log("Uploading media...");
         return new Promise((resolve, reject) => {
             encodeImageFromUrl(imageUrl)
-                .then(base64Image => Twitter.post("media/upload", { media_data: base64Image }).data.media_id_string)
-                .then(mediaIdString => {
-                    Twitter.post("media/metadata/create", { media_id: mediaIdString, alt_text: { text: "An image" } });
-                    resolve(mediaIdString);
-                })
+                .then(base64Image => Promise.all([ base64Image, Twitter.post("media/upload", { media_data: base64Image }) ]))
+                .then(responses => Promise.all([ responses, Twitter.post("media/metadata/create", { media_id: responses[1].data.media_id_string, alt_text: { text: "An image" } }) ]))
+                .then(responses => { resolve(responses[1].data.media_id_string) })
                 .catch(reject);
         });
     }
