@@ -25,15 +25,18 @@ function check() {
                   const postData = post.data;
                   const state = Stater.getImageState(postData.url);
                   if(state.isAcceptable()) {
-                      if (lastId != postData.id) return Promise.all([ postData, Tweeter.tweet(postData.title, postData.url, state) ]);
+                      if (lastId != postData.id) {
+                          Tweeter.tweet(postData.title, postData.url, state);
+                          return postData;
+                      }
                       break;
                   }
               }
           } else return Promise.reject(new Error("Response code " + response.statusCode));
         })
-        .then(responses => {
-            if(responses != null) {
-                lastId = responses[0].id;
+        .then(postData => {
+            if(postData != null) {
+                lastId = postData.id;
                 handle.reddit.lastId = lastId;
                 fs.writeFile("./handles/" + args[0] + ".json", JSON.stringify(handle, undefined, 2), "utf8");
             }

@@ -13,7 +13,7 @@ module.exports = (handle, request) => {
         return new Promise((resolve, reject) => {
             request({ url: url, encoding: null, resolveWithFullResponse: true })
                 .then(response => {
-                    if(response.statusCode == 200) resolve(response.body.data.toString("base64"));
+                    if(response.statusCode == 200) resolve(new Buffer(response.body).toString("base64"));
                     else reject(new Error("Response code " + response.statusCode));
                 })
                 .catch(reject);
@@ -24,9 +24,12 @@ module.exports = (handle, request) => {
         console.log("Uploading media...");
         return new Promise((resolve, reject) => {
             encodeImageFromUrl(imageUrl)
-                .then(response => Promise.all([ response, Twitter.post("media/upload", { media_data: response }) ]))
-                .then(responses => Promise.all([ responses, Twitter.post("media/metadata/create", { media_id: responses[1].data.media_id, alt_text: { text: "An image" } }) ]))
-                .then(responses => { resolve(responses[1].data.media_id_string); })
+                .then(base64Image => Twitter.post("media/upload", { media_data: base64Image }).data.media_id_string)
+                .then(mediaIdString => {
+                    Twitter.post("media/metadata/create", { media_id: mediaIdString, alt_text: { text: "An image" } });
+                    return mediaIdString;
+                })
+                .then(mediaIdString => { resolve(mediaIdString); })
                 .catch(reject);
         });
     }
@@ -39,7 +42,7 @@ module.exports = (handle, request) => {
                 if (state.isRawImage()) {
                     console.log("Raw image");
                     uploadMedia(imageUrl)
-                        .then(mediaId => Promise.all([ mediaId, Twitter.post("statuses/update", { status: text, media_ids: [mediaId] }) ]))
+                        .then(mediaId => Promise.all([ mediaId, Twitter.post("statuses/update", { status: text, media_ids: [ mediaId ] }) ]))
                         .then(resolve)
                         .catch(reject);
                 } else if (state.isValidSite()) {
