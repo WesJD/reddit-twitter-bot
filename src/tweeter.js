@@ -13,7 +13,7 @@ module.exports = (handle, request) => {
         return new Promise((resolve, reject) => {
             request({ url: url, encoding: null, resolveWithFullResponse: true })
                 .then(response => {
-                    if(response.statusCode == 200) resolve(new Buffer(response.body).toString("base64"));
+                    if(response.statusCode == 200) resolve(new Buffer(response.body.data).toString("base64"));
                     else reject(new Error("Response code " + response.statusCode));
                 })
                 .catch(reject);
@@ -25,8 +25,8 @@ module.exports = (handle, request) => {
         return new Promise((resolve, reject) => {
             encodeImageFromUrl(imageUrl)
                 .then(base64Image => Promise.all([ base64Image, Twitter.post("media/upload", { media_data: base64Image }) ]))
-                .then(responses => Promise.all([ responses, Twitter.post("media/metadata/create", { media_id: responses[1].data.media_id_string, alt_text: { text: "An image" } }) ]))
-                .then(responses => { resolve(responses[1].data.media_id_string) })
+                .then(responses => Promise.all([ Twitter.post("media/metadata/create", { media_id: responses[1].data.media_id_string, alt_text: { text: "An image" } }) ].concat(responses)))
+                .then(responses => { resolve(responses[2].data.media_id_string) })
                 .catch(reject);
         });
     }
