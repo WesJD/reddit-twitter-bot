@@ -27,9 +27,8 @@ module.exports = (handle, request) => {
                 .then(base64Image => Twitter.post("media/upload", { media_data: base64Image }).data.media_id_string)
                 .then(mediaIdString => {
                     Twitter.post("media/metadata/create", { media_id: mediaIdString, alt_text: { text: "An image" } });
-                    return mediaIdString;
+                    resolve(mediaIdString);
                 })
-                .then(mediaIdString => { resolve(mediaIdString); })
                 .catch(reject);
         });
     }
@@ -42,7 +41,7 @@ module.exports = (handle, request) => {
                 if (state.isRawImage()) {
                     console.log("Raw image");
                     uploadMedia(imageUrl)
-                        .then(mediaId => Promise.all([ mediaId, Twitter.post("statuses/update", { status: text, media_ids: [ mediaId ] }) ]))
+                        .then(mediaIdString => Twitter.post("statuses/update", { status: text, media_ids: [ mediaIdString ] }))
                         .then(resolve)
                         .catch(reject);
                 } else if (state.isValidSite()) {
