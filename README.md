@@ -12,4 +12,4 @@ This is a subreddit twitter bot written in [Node](https://nodejs.org).
 Check out [@runixporn on Twitter](https://twitter.com/runixporn).
 
 ##License
-Licensed under the [MIT License](LICENSE.md).
+Licensed under the [Mozilla Public License 2.0](LICENSE.md).
