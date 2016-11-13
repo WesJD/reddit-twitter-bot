@@ -13,7 +13,7 @@ module.exports = (handle, request) => {
         return new Promise((resolve, reject) => {
             request({ url: url, encoding: null, resolveWithFullResponse: true })
                 .then(response => {
-                    if(response.statusCode == 200) resolve(new Buffer(response.body.data).toString("base64"));
+                    if(response.statusCode == 200) resolve(new Buffer(response.body).toString("base64"));
                     else reject(new Error("Response code " + response.statusCode));
                 })
                 .catch(reject);

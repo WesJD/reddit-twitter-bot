@@ -33,7 +33,7 @@ function check() {
         })
         .then(responses => {
             if(responses != null) {
-                lastId = responses[1].id;
+                lastId = responses[0].id;
                 handle.reddit.lastId = lastId;
                 fs.writeFile("./handles/" + args[0] + ".json", JSON.stringify(handle, undefined, 2), "utf8");
             }
