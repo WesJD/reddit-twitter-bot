@@ -1,6 +1,6 @@
 #reddit-twitter-bot
 
-This is a subreddit twitter bot written in [Node](https://nodejs.org).
+This is a subreddit twitter bot written in [Node](https://nodejs.org). It currently mirrors _posts with images_ to a Twitter feed.
 
 ##How to use
 1. Clone the repository.
