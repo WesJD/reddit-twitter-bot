@@ -19,17 +19,17 @@ function check() {
     console.log("Checking...");
     request(requestOptions)
         .then(response => {
-          if(response.statusCode == 200) {
-              const latest = response.body.data.children;
-              for(const post of latest) {
-                  const postData = post.data;
-                  const state = Stater.getImageState(postData.url);
-                  if(state.isAcceptable()) {
-                      if (lastId != postData.id) return Promise.all([ postData, Tweeter.tweet(postData.title, postData.url, state) ])
-                      break;
-                  }
-              }
-          } else return Promise.reject(new Error("Response code " + response.statusCode));
+            if(response.statusCode == 200) {
+                const latest = response.body.data.children;
+                for(const post of latest) {
+                    const postData = post.data;
+                    const state = Stater.getImageState(postData.url);
+                    if(state.isAcceptable()) {
+                        if(lastId != postData.id) return Promise.all([ postData, Tweeter.tweet(postData.title, postData.url, state) ])
+                         break;
+                    }
+                }
+            } else return Promise.reject(new Error("Response code " + response.statusCode));
         })
         .then(responses => {
             if(responses != null) {
