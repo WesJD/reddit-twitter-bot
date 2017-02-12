@@ -1,23 +1,26 @@
 'use strict';
 
-const args = process.argv.slice(2);
-const handle = require("../handles/" + args[0] + ".json");
-const requestOptions = {
-    url: "https://www.reddit.com/r/" + handle.reddit.subreddit + "/new.json?sort=new",
+const ARGS = process.argv.slice(2);
+const HANDLE = require("../handles/" + ARGS[0] + ".json");
+const REQUEST_OPTIONS = {
+    url: "https://www.reddit.com/r/" + HANDLE.reddit.subreddit + "/new.json?sort=new",
     json: true,
     resolveWithFullResponse: true
 };
 
-const fs = require("fs");
-const request = require("request-promise");
-const Stater = require("./stater")(["imgur.com"]);
-const Tweeter = require("./tweeter")(handle, request);
+const Promise = require("bluebird");
+Promise.config({ cancellation: true });
+const request = Promise.promisify(require("request"));
+const writeFile = Promise.promisify(require("fs").writeFile);
 
-let lastId = handle.reddit.lastId;
+const Stater = require("./stater")(["imgur.com"]);
+const Tweeter = require("./tweeter")(HANDLE);
+
+let lastId = HANDLE.reddit.lastId;
 
 function check() {
     console.log("Checking...");
-    request(requestOptions)
+    const p = request(REQUEST_OPTIONS)
         .then(response => {
             if(response.statusCode == 200) {
                 const latest = response.body.data.children;
@@ -25,22 +28,24 @@ function check() {
                     const postData = post.data;
                     const state = Stater.getImageState(postData.url);
                     if(state.isAcceptable()) {
-                        if(lastId != postData.id) return Promise.all([ postData, Tweeter.tweet(postData.title, postData.url, state) ])
-                         break;
+                        if(lastId != postData.id) return Promise.all([postData, Tweeter.tweet(postData, state)])
+                        else {
+                            p.cancel();
+                            break;
+                        }
                     }
                 }
             } else return Promise.reject(new Error("Response code " + response.statusCode));
         })
         .then(responses => {
-            if(responses != null) {
-                lastId = responses[0].id;
-                handle.reddit.lastId = lastId;
-                fs.writeFile("./handles/" + args[0] + ".json", JSON.stringify(handle, undefined, 2), "utf8");
-            }
-            console.log("Done.");
+            lastId = responses[0].id;
+            console.log(lastId);
+            HANDLE.reddit.lastId = lastId;
+            writeFile("./handles/" + ARGS[0] + ".json", JSON.stringify(HANDLE, undefined, 2), "utf8");
+            console.log("Tweeted.");
         })
         .catch(err => { console.error("Unable to process: ", err) });
 }
 
 console.log("Starting...");
-setInterval(check, 1000 * 60 * 3);
+setInterval(check, 1000 * 20);
